@@ -1,47 +1,63 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hece <hece@student.42kocaeli.com.tr>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/15 14:27:54 by hece              #+#    #+#             */
+/*   Updated: 2023/01/15 14:27:55 by hece             ###   ########.tr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minitalk.h"
 
-int		g_len;
+struct sigaction	g_act;
 
-void	ft_transmit(int sig)
+/**
+ * @brief Main'den yollanılan her char karakter için 8 defa sinyal yollar
+ * 
+ * @param pid Servera ait tanımlama numarasını alır.
+ * @param c Main'den yollanılan char karakteri alır.
+ */
+void	send_bit(int pid, char c)
 {
-		if (sig == SIGUSR1)
-				ft_printf("%d, charanters succesfully transmitted.\n");
-		exit(1);
+	int	i;
+
+	i = 7;
+	while (i >= 0)
+	{
+		if ((c >> i) & 1)
+			kill(pid, SIGUSR1);
+		else
+			kill(pid, SIGUSR2);
+		usleep(100);
+		sigaction(SIGUSR2, &g_act, NULL);
+		i--;
+	}
 }
 
-void	send_data(char c, int pid)
+void	received_signal(int pid, siginfo_t *inf, void *context)
 {
-		int	index;
-
-		index = 0;
-		while (index < 8)
-		{
-				if (c << 1 & 0b10000000)
-						kill(pid, SIGUSR2);
-				else
-						kill(pid, SIGUSR1);
-				index++;
-				usleep(400);
-		}
+	context = 0;
+	ft_printf("Signal received /Sender pid -> %d\n", inf->si_pid);
+	pid = 0;
 }
 
-int	main(int ac, char *av[])
+int	main(int ac, char **av)
 {
-	int	pid;
-	int	index;
+	int	i;
 
-	index = 0;
+	g_act.sa_flags = SA_SIGINFO;
+	g_act.sa_sigaction = &received_signal;
+	i = 0;
 	if (ac == 3)
 	{
-		pid = ft_atoi(av[1]);
-		while (av[2][index])
-			send_data(av[2][index++], pid);
-		send_data('\0', pid);
-		g_len = index;
-		signal(SIGUSR1, ft_transmit);
-		while (1)
-			pause();
+		while (av[2][i] != '\0')
+		{
+			send_bit(ft_atoi(av[1]), av[2][i]);
+			i++;
+		}
 	}
-	else
-		ft_printf("CLIENT : FORMAT Error!\nSend as ./client <PID> <MESSAGE>\n");
+	return (0);
 }
