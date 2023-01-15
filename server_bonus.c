@@ -12,30 +12,23 @@
 
 #include "minitalk.h"
 
-/**
- * @brief Gelen sinyal tipine göre bit kaydırma işlemi yapar.
- * 
- * @param signum "sigaction" ile gelen sinyalin tipini alır. SIGUSR1 - SIGUSR2
- * @param inf Client tarafından yollanılan bilgileri tutan struct yapısı
- * @param context Alt metin olarak kullanıla bilir boş da bırakılabilir (:
- */
 void	signal_decode(int signum, siginfo_t *inf, void *context)
 {
-	static int	i = 7;
-	static char	a;
+	static int	index;
+	static char	chr;
 
 	context = 0;
 	if (signum == SIGUSR1)
-		a = a | 1 << i;
+		chr = (chr << 1) | 1;
 	else if (signum == SIGUSR2)
-		a = a | 0 << i;
-	i--;
-	if (i < 0)
+		chr = (chr << 1);
+	index++;
+	if (index == 8)
 	{
-		ft_printf("%c", a);
+		ft_printf("%c", chr);
 		kill (inf->si_pid, SIGUSR2);
-		a = 0;
-		i = 7;
+		chr = 0;
+		index = 0;
 	}
 }
 
