@@ -1,74 +1,36 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: hece <hece@student.42kocaeli.com.tr>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/08 05:37:44 by hece              #+#    #+#             */
-/*   Updated: 2023/01/08 05:56:55 by hece             ###   ########.tr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include "minitalk.h"
 
-#include "mini_talk.h"
-
-int	ft_atoi(const char *str)
+void	send_data(char c, int pid)
 {
-	int	iter;
-	int	dop;
-	int	result;
+		int	index;
 
-	iter = 0;
-	dop = 1;
-	result = 0;
-	while ((str[iter] >= '\t' && str[iter] <= '\r') || str[iter] == ' ')
-		iter++;
-	if (str[iter] == '+' || str[iter] == '-')
-	{
-		if (str[iter] == '-')
-			dop *= -1;
-		iter++;
-	}
-	while (str[iter] >= '0' && str[iter] <= '9' && str[iter] != '\0')
-	{
-		result = ((str[iter] - '0') + (result * 10));
-		iter++;
-	}
-	return (result * dop);
+		index = 0;
+		while (index < 8)
+		{
+				if (c << index & 0b10000000)
+					kill(pid, SIGUSR1);
+				else
+					kill(pid, SIGUSR2);
+				index++;
+				usleep(700);
+		}
 }
 
-void	get_binary(int pid, char *str)
+int	main(int ac, char *av[])
 {
-	int	iter;
+	int	pid;
 	int	index;
 
 	index = 0;
-	while (str[index])
+	if (ac == 3)
 	{
-		iter = 7;
-		while (iter >= 0)
+		pid = ft_atoi(av[1]);
+		while (av[2][index] != '\0')
 		{
-			if (str[index] >> iter & 1)
-				kill(pid, SIGUSR1);
-			else
-				kill(pid, SIGUSR2);
-			usleep(100);
-				iter--;
+			send_data(av[2][index++], pid);
 		}
-		index++;
-	}
-}
-
-int	main(int argc, char **argv)
-{
-	int	pid;
-
-	if (argc == 3)
-	{
-		pid = ft_atoi(argv[1]);
-		get_binary(pid, argv[2]);
 	}
 	else
-		ft_printf("Wrong argumans");
+		ft_printf("CLIENT : FORMAT Error!\nSend as ./client <PID> <MESSAGE>\n");
 	return (0);
 }

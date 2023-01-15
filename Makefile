@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
-CLIENT = @$(CC) $(CFLAGS) client.c ft_printf.c -o $(NAME_CL)
-SERVER = @$(CC) $(CFLAGS) server.c ft_printf.c -o $(NAME_SV)
-CLIENTBONUS = @$(CC) $(CFLAGS) client_bonus.c ft_printf.c -o $(NAME_CL_BONUS)
-SERVERBONUS = @$(CC) $(CFLAGS) server_bonus.c ft_printf.c -o $(NAME_SV_BONUS)
+CLIENT = @$(CC) $(CFLAGS) client.c ft_printf.c utils.c -o $(NAME_CL)
+SERVER = @$(CC) $(CFLAGS) server.c ft_printf.c utils.c -o $(NAME_SV)
+CLIENTBONUS = @$(CC) $(CFLAGS) client_bonus.c ft_printf.c utils.c -o $(NAME_CL_BONUS)
+SERVERBONUS = @$(CC) $(CFLAGS) server_bonus.c ft_printf.c utils.c -o $(NAME_SV_BONUS)
 NAME_CL = client
 NAME_SV = server
 NAME_CL_BONUS = client_bonus

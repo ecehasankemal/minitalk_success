@@ -1,43 +1,29 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   server.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: hece <hece@student.42kocaeli.com.tr>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/08 05:38:36 by hece              #+#    #+#             */
-/*   Updated: 2023/01/08 05:38:37 by hece             ###   ########.tr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include "minitalk.h"
 
-#include "mini_talk.h"
-
-void	take_it(int sig)
+void	handler(int sig)
 {
-	static unsigned char	c;
-	static int				i;
+	static int	index;
+	static char	chr;
 
 	if (sig == SIGUSR1)
-		c = c | 1;
-	i++;
-	if (i == 8)
+		chr = (chr << 1) | 1;
+	else if (sig == SIGUSR2)
+		chr = (chr << 1);
+	index++;
+	if (index == 8)
 	{
-		ft_printf("%c", c);
-		c = 0;
-		i = 0;
+		ft_printf("%c", chr);
+		index = 0;
+		chr = 0;
 	}
-	c = c << 1;
 }
 
 int	main(void)
 {
-	ft_printf("\033[92mServer PID: \033[0m");
-	ft_printf("\033[93m%d\033[0m",getpid());
-	ft_printf("\n");
+	ft_printf("SERVER : Server started\nPID -> %d\n", getpid());
+	signal(SIGUSR1, handler);
+	signal(SIGUSR2, handler);
 	while (1)
-	{
-		signal(SIGUSR1, take_it);
-		signal(SIGUSR2, take_it);
-	}
+		pause();
 	return (0);
 }

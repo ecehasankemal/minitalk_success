@@ -1,56 +1,39 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   server_bonus.c                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: hece <hece@student.42kocaeli.com.tr>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/08 05:17:44 by hece              #+#    #+#             */
-/*   Updated: 2023/01/08 05:53:33 by hece             ###   ########.tr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include "minitalk.h"
 
-#include "mini_talk.h"
-
-void	take_it_b(int sig, siginfo_t *info, void *context)
+void	handler(int sig, siginfo_t *info, void *ptr)
 {
-	static char		str = 0;
-	static pid_t	client_id = 0;
-	static int		get_byte = 0;
+		static int	index;
+		static char	chr;
 
-	(void)context;
-	if (client_id == 0)
-		client_id = info->si_pid;
-	if (sig == SIGUSR1)
-		str = str | 1;
-	if (++get_byte == 8)
-	{
-		get_byte = 0;
-		if (!str)
+		(void)ptr;
+		if (sig == SIGUSR1)
+				chr = (chr << 1) | 1;
+		else if (sig == SIGUSR2)
+				chr = (chr << 1);
+		index++;
+		if (index == 8)
 		{
-			kill(client_id, SIGUSR1);
-			client_id = 0;
-			ft_printf("\n");
+				ft_printf("%c", chr);
+				if (!chr)
+				{
+						usleep(400);
+						kill(info->si_pid, SIGUSR1);
+				}
+				index = 0;
+				chr = 0;
 		}
-		ft_printf("%c", str);
-		str = 0;
-	}
-	else
-		str = str << 1;
 }
+
 int	main(void)
 {
-	struct sigaction client;
+	struct sigaction	sa;
 
-	client.sa_sigaction = take_it_b;
-	client.sa_flags = SA_SIGINFO;
-	ft_printf("\033[92mServer PID: \033[0m");
-	ft_printf("\033[93m%d\033[0m",getpid());
-	ft_printf("\n");
+	ft_printf("SERVER : Server started\n -> %d\n", getpid());
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = handler;
+	sigaction(SIGUSR1, &sa, NULL);
+	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
-	{
-		sigaction(SIGUSR1, &client, 0);
-		sigaction(SIGUSR2, &client, 0);
-	}
+			pause();
 	return (0);
 }

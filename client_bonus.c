@@ -1,84 +1,47 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   client_bonus.c                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: hece <hece@student.42kocaeli.com.tr>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/08 05:38:00 by hece              #+#    #+#             */
-/*   Updated: 2023/01/08 05:38:11 by hece             ###   ########.tr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include "minitalk.h"
 
-#include "mini_talk.h"
+int		g_len;
 
-int	ft_atoi(const char *str)
+void	ft_transmit(int sig)
 {
-	int	iter;
-	int	dop;
-	int	result;
-
-	iter = 0;
-	dop = 1;
-	result = 0;
-	while ((str[iter] >= '\t' && str[iter] <= '\r') || str[iter] == ' ')
-		iter++;
-	if (str[iter] == '+' || str[iter] == '-')
-	{
-		if (str[iter] == '-')
-			dop *= -1;
-		iter++;
-	}
-	while (str[iter] >= '0' && str[iter] <= '9' && str[iter] != '\0')
-	{
-		result = ((str[iter] - '0') + (result * 10));
-		iter++;
-	}
-	return (result * dop);
+		if (sig == SIGUSR1)
+				ft_printf("%d, charanters succesfully transmitted.\n");
+		exit(1);
 }
 
-void	finish(int sig)
+void	send_data(char c, int pid)
 {
-	if (sig == SIGUSR1)
-	{
-		ft_printf("Mission Completed");
-	}
+		int	index;
+
+		index = 0;
+		while (index < 8)
+		{
+				if (c << 1 & 0b10000000)
+						kill(pid, SIGUSR2);
+				else
+						kill(pid, SIGUSR1);
+				index++;
+				usleep(400);
+		}
 }
 
-void	get_binary(int pid, char *str)
+int	main(int ac, char *av[])
 {
-	int	iter;
+	int	pid;
 	int	index;
 
 	index = 0;
-	while (str[index])
+	if (ac == 3)
 	{
-		iter = 7;
-		while (iter >= 0)
-		{
-			if (str[index] >> iter & 1)
-				kill(pid, SIGUSR1);
-			else
-				kill(pid, SIGUSR2);
-			usleep(100);
-				iter--;
-		}
-		index++;
-	}
-	ft_printf("Signal send completed");
-}
-
-int	main(int argc, char **argv)
-{
-	int	pid;
-
-	if (argc == 3)
-	{
-		pid = ft_atoi(argv[1]);
-		signal(SIGUSR1, finish);
-		get_binary(pid, argv[2]);
+		pid = ft_atoi(av[1]);
+		while (av[2][index])
+			send_data(av[2][index++], pid);
+		send_data('\0', pid);
+		g_len = index;
+		signal(SIGUSR1, ft_transmit);
+		while (1)
+			pause();
 	}
 	else
-		ft_printf("Wrong argumants");
-	return (0);
+		ft_printf("CLIENT : FORMAT Error!\nSend as ./client <PID> <MESSAGE>\n");
 }
