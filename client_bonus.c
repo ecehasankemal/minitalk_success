@@ -28,14 +28,14 @@ int	ft_atoi(const char *str)
 	return (result);
 }
 
-void	send_bit(int pid, char c)
+void	send_bit(int pid, char chr)
 {
 	int	index;
 
 	index = 0;
 	while (index < 8)
 	{
-		if ((c << index) & 0b10000000)
+		if ((chr << index) & 0b10000000)
 			kill(pid, SIGUSR1);
 		else
 			kill(pid, SIGUSR2);
@@ -67,5 +67,7 @@ int	main(int ac, char *av[])
 			index++;
 		}
 	}
+	else
+		ft_printf("CLIENT : FORMAT Error!\nSend as ./client <PID> <MESSAGE>\n");
 	return (0);
 }

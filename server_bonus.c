@@ -38,7 +38,7 @@ int	main(void)
 
 	act.sa_flags = SA_SIGINFO;
 	act.sa_sigaction = &signal_decode;
-	ft_printf("PID: %d\n", getpid());
+	ft_printf("SERVER : Server started\nPID -> %d\n", getpid());
 	sigaction(SIGUSR1, &act, NULL);
 	sigaction(SIGUSR2, &act, NULL);
 	while (1)
