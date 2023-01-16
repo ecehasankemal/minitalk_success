@@ -18,7 +18,6 @@
 # include <unistd.h>
 # include <stdarg.h>
 
-int	ft_atoi(const char *str);
 int	ft_printf(const char *str, ...);
 
 #endif

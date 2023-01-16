@@ -14,6 +14,20 @@
 
 struct sigaction	g_act;
 
+int	ft_atoi(const char *str)
+{
+	register int	iter;
+	register int	result;
+
+	iter = 0;
+	result = 0;
+	while ((str[iter] >= '\t' && str[iter] <= '\r') || str[iter] == ' ')
+		iter++;
+	while (str[iter] >= '0' && str[iter] <= '9' && str[iter] != '\0')
+		result = ((str[iter++] - '0') + (result * 10));
+	return (result);
+}
+
 void	send_bit(int pid, char c)
 {
 	int	index;
@@ -33,12 +47,12 @@ void	send_bit(int pid, char c)
 
 void	received_signal(int pid, siginfo_t *inf, void *context)
 {
-	context = 0;
+	(void)pid;
+	(void)context;
 	ft_printf("Signal received /Sender pid -> %d\n", inf->si_pid);
-	pid = 0;
 }
 
-int	main(int ac, char **av)
+int	main(int ac, char *av[])
 {
 	int	index;
 

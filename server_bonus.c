@@ -17,7 +17,7 @@ void	signal_decode(int signum, siginfo_t *inf, void *context)
 	static int	index;
 	static char	chr;
 
-	context = 0;
+	(void)context;
 	if (signum == SIGUSR1)
 		chr = (chr << 1) | 1;
 	else if (signum == SIGUSR2)
